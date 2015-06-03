@@ -377,16 +377,16 @@ class PgmeMain(object):
         #length = length + difference between ideal length and actual length *(1/30)
         
         n = max(1,len(self.v_list1))
-        K = (math.sqrt((self.width*self.height)/n))
+        K = (math.sqrt((self.width*self.height)/n))/2
                
-        #K = 300
+     
        
         spring = 2
 
         disp_list = []
-        d_x = 0
-        d_y = 0
-
+        vx = 0
+        vy = 0
+        d = 0
         
 
         for i in self.v_list1:
@@ -396,58 +396,100 @@ class PgmeMain(object):
           
             #spring force for adjacent vertices
             for j in self.a_list1[self.v_list1.index(i)]:
+                if i is not j:
+                    # vector from j to i
+                    (vx, vy) = (i.xy[0]-j.xy[0]), (i.xy[1]-j.xy[1])
+                    d = sqrt(vx**2 + vy**2)
 
-                # vector from j to i
-                (vx, vy) = (i.xy[0]-j.xy[0]), (i.xy[1]-j.xy[1])
-                d = sqrt(vx**2 + vy**2)
-                # This is naive -- the sign is right, but the absolute value
-                # is incorrect
-                disp = int(K - d)
-                
-                
-                
+                    disp = int(K - d)
 
-                # unit vector from j to i  (lookout for j=i)
-                (nx, ny) = (vx/d, vy/d)
-                
-                
-                #print "disp = {}".format(disp)
-                # disp_y = K - abs(i.xy[1]-j.xy[1])
-                
-                
+                    # unit vector from j to i  
+                    (nx, ny) = (vx/d, vy/d)
+                  
+                    
+                    #print "disp = {}".format(disp)
+                    # disp_y = K - abs(i.xy[1]-j.xy[1])
 
-                fx_a = (nx*disp**2/K)*(disp/max(1,abs(disp)))
-                fy_a = (ny*disp**2/K)*(disp/max(1,abs(disp)))
-                
-                
-                #fx_a = (vx*disp/K)
-                #fy_a = (vy*disp/K)
-                
-                print "(vx,vy) = ({},{}), disp = {}, fx={}".format(vx, vy,disp,fx_a)
-                #get the direction of the vector (+ or -)
-
- 
-            
+                    fx_a += spring*(nx*disp**2/K)*(disp/max(1,abs(disp)))
+                    fy_a += spring*(ny*disp**2/K)*(disp/max(1,abs(disp)))               
+                    
+                    #fx_a = (vx*disp/K)
+                    #fy_a = (vy*disp/K)
+                    
+                    #print "(vx,vy) = ({},{}), disp = {}, fx={}".format(vx, vy,disp,fx_a)
+                    #get the direction of the vector (+ or -)
+         
             fx_r = 0
             fy_r = 0 
             
             #proximity to other vertices
-            """            for j in self.v_list1:
+            
+            temp = 100 #the "temperature" of the repulsive force. 
+            
+            for j in self.v_list1:
                 if i is not j:
-                
-                    dist_x = i.xy[0] - j.xy[0]
-                    dist_y = i.xy[1] - j.xy[1]
+                    (vx, vy) = (i.xy[0]-j.xy[0]), (i.xy[1]-j.xy[1])
+                    d = sqrt(vx**2 + vy**2)
                     
-                    print dist_x
-                    if abs(dist_x) > 0:
-                        d_x = dist_x/abs(dist_x)
-                        fx_r = fx_r + d_x*5/abs(dist_x)
-                    if abs(dist_y) > 0:
-                        d_y = dist_y/abs(dist_y)
-                        fy_r = fx_r + d_y*5/abs(dist_y)
-            """
-            disp_list.append((int(i.xy[0]+fx_a*(1/self.FPS)+fx_r*(1/self.FPS)),\
-                    int(i.xy[1]+fy_a*(1/self.FPS)+fy_r*(1/self.FPS))))
+                    #disp = int(K - d)
+                    # unit vector from j to i  
+                    
+                    
+                    if d != 0:
+                        (nx, ny) = (vx/d, vy/d)
+                        fx_r += temp*int(nx * (K/2)/d)
+                        fy_r += temp*int(ny * (K/2)/d)
+               # print "(vx,vy) = ({},{}), disp = {}, fx={}".format(vx, vy,d,fx_r)
+            
+            
+            # wall repusion (similar to vertices repulsion)
+            fx_w = 0
+            fy_w = 0
+            
+            # top-left direction
+            (vx,vy) = i.xy[0], i.xy[1]
+            d = sqrt(vx**2 + vy**2)
+            
+            if d != 0:
+                (nx,ny) = (vx/d,vy/d)
+                fx_w +=  temp*int(nx * (K/2)/d)
+                fy_w +=  temp*int(ny * (K/2)/d)
+            
+           
+
+            # top-right direction
+            (vx,vy) = i.xy[0]-self.width, i.xy[1]
+            d = sqrt(vx**2 + vy**2)
+            
+            if d != 0:
+                (nx,ny) = (vx/d,vy/d)
+                fx_w += temp*int(nx * K/d)
+                fy_w += temp*int(ny * K/d)
+                    
+            # bottom-left direction
+            (vx,vy) = i.xy[0], i.xy[1]-self.height
+            d = sqrt(vx**2 + vy**2)
+            
+            if d != 0:
+                (nx,ny) = (vx/d,vy/d)
+                fx_w += temp*int(nx * K/d)
+                fy_w += temp*int(ny * K/d)
+
+            # bottom-right direction
+            (vx,vy) = i.xy[0]-self.width, i.xy[1]-self.height
+            d = sqrt(vx**2 + vy**2)
+            
+            if d != 0:
+                (nx,ny) = (vx/d,vy/d)
+                fx_w += int(nx * K/d)
+                fy_w += int(ny * K/d)
+                           
+                    
+                 
+            disp_list.append((int(i.xy[0]+fx_a*(1/self.FPS)+fx_r*(1/self.FPS)\
+                            +fx_w*(1/self.FPS)),\
+                    int(i.xy[1]+fy_a*(1/self.FPS)+fy_r*(1/self.FPS)\
+                            +fy_w*(1/self.FPS))))
              
         #update vertex positions
         for i in range(len(self.v_list1)):

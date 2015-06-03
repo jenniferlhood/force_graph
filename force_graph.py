@@ -187,7 +187,7 @@ class PgmeMain(object):
                 # (and only when the loadfile screen isn't displayed)                
                 if event.button ==  1 and 10 < pos[0] < \
                                 (self.width-10) and 0 < pos[1] < self.height-20\
-                                 and self.state == 0:
+                                 and (self.state == 0 or self.state == 4):
 
                     #add move vertex 
                     if self.selected_index is None:  
@@ -370,22 +370,6 @@ class PgmeMain(object):
     def deg(self,v):
         return len(self.a_list1[self.v_list1.index(v)])
         
-#   def bary(self):
-    
-        #select the free vertices
-#       if len(self.free) < 3:
-#           self.free = [0,1,2]
-        
-#       P = [[],[],[],[]]
-        #3 fixed vertices
-#       P.append([(self.width/4,2*self.height/3),(self.width/2,self.height/3),(3*self.width/4,2*self.height/3)])
-        #4 fixed vertices
-#       P.append([(self.width/3,self.height/3)
-        
-        #place each fixed vertex at P, a convex polygon
-#       for i in self.free:
-#           self.v_list1[i].xy= 
-            
             
                
     def force(self):
@@ -395,7 +379,7 @@ class PgmeMain(object):
         n = max(1,len(self.v_list1))
         K = (math.sqrt((self.width*self.height)/n))
                
-        K = 300
+        #K = 300
        
         spring = 2
 
@@ -418,19 +402,28 @@ class PgmeMain(object):
                 d = sqrt(vx**2 + vy**2)
                 # This is naive -- the sign is right, but the absolute value
                 # is incorrect
-                disp = (K - d)
+                disp = int(K - d)
+                
+                
+                
 
                 # unit vector from j to i  (lookout for j=i)
                 (nx, ny) = (vx/d, vy/d)
-
-                print "disp = {}".format(disp)
+                
+                
+                #print "disp = {}".format(disp)
                 # disp_y = K - abs(i.xy[1]-j.xy[1])
                 
-                print "{}{}: (vx,vy) = ({},{})".format(i, j, vx, vy)
-
-                fx_a = (vx * disp/(K))
-                fy_a = (vy * disp/(K))
                 
+
+                fx_a = (nx*disp**2/K)*(disp/max(1,abs(disp)))
+                fy_a = (ny*disp**2/K)*(disp/max(1,abs(disp)))
+                
+                
+                #fx_a = (vx*disp/K)
+                #fy_a = (vy*disp/K)
+                
+                print "(vx,vy) = ({},{}), disp = {}, fx={}".format(vx, vy,disp,fx_a)
                 #get the direction of the vector (+ or -)
 
  

@@ -6,6 +6,8 @@ import time
 import glob
 import random
 
+from math import sqrt
+
 
 
 # colour globals
@@ -410,26 +412,34 @@ class PgmeMain(object):
           
             #spring force for adjacent vertices
             for j in self.a_list1[self.v_list1.index(i)]:
-                disp_x = K - abs(i.xy[0]-j.xy[0])
-                disp_y = K - abs(i.xy[1]-j.xy[1])
+
+                # vector from j to i
+                (vx, vy) = (i.xy[0]-j.xy[0]), (i.xy[1]-j.xy[1])
+                d = sqrt(vx**2 + vy**2)
+                # This is naive -- the sign is right, but the absolute value
+                # is incorrect
+                disp = (K - d)
+
+                # unit vector from j to i  (lookout for j=i)
+                (nx, ny) = (vx/d, vy/d)
+
+                print "disp = {}".format(disp)
+                # disp_y = K - abs(i.xy[1]-j.xy[1])
+                
+                print "{}{}: (vx,vy) = ({},{})".format(i, j, vx, vy)
+
+                fx_a = (vx * disp/(K))
+                fy_a = (vy * disp/(K))
                 
                 #get the direction of the vector (+ or -)
-                if abs(disp_x) > 0 and abs(i.xy[0]-j.xy[0]) > 0:
-                    d_x = ((i.xy[0]-j.xy[0])/abs(i.xy[0]-j.xy[0]))*(disp_x/abs(disp_x))
-                    
-                if abs(disp_y) > 0 and abs(i.xy[1]-j.xy[1]) > 0:
-                    d_y = ((i.xy[1]-j.xy[1])/abs(i.xy[1]-j.xy[1]))*(disp_y/abs(disp_y))
-                
-                
-                fx_a = fx_a + (abs(disp_x)*d_x)/spring #apply spring force to each displacement vector
-                fy_a = fy_a + (abs(disp_y)*d_y)/spring
+
  
             
             fx_r = 0
             fy_r = 0 
             
             #proximity to other vertices
-            for j in self.v_list1:
+            """            for j in self.v_list1:
                 if i is not j:
                 
                     dist_x = i.xy[0] - j.xy[0]
@@ -442,8 +452,7 @@ class PgmeMain(object):
                     if abs(dist_y) > 0:
                         d_y = dist_y/abs(dist_y)
                         fy_r = fx_r + d_y*5/abs(dist_y)
-
-             
+            """
             disp_list.append((int(i.xy[0]+fx_a*(1/self.FPS)+fx_r*(1/self.FPS)),\
                     int(i.xy[1]+fy_a*(1/self.FPS)+fy_r*(1/self.FPS))))
              

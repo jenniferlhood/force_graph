@@ -413,9 +413,7 @@ class PgmeMain(object):
                     fx_a += spring*(nx*disp**2/K)*(disp/max(1,abs(disp)))
                     fy_a += spring*(ny*disp**2/K)*(disp/max(1,abs(disp)))
                     
-                    #fx_a = (vx*disp/K)
-                    #fy_a = (vy*disp/K)
-                    
+                                       
                     #print "(vx,vy) = ({},{}), disp = {}, fx={}".format(vx, vy,disp,fx_a)
                     #get the direction of the vector (+ or -)
          
@@ -475,19 +473,6 @@ class PgmeMain(object):
                 ny = 1
                 fy_w +=  temp*int(ny * (K**2)/d)
             
-            
-            
-            """
-            # bottom-right direction
-            (vx,vy) = i.xy[0]-self.width, i.xy[1]-self.height
-            d = sqrt(vx**2 + vy**2)
-            
-            if d != 0:
-                (nx,ny) = (vx/d,vy/d)
-                fx_w += int(nx * K/d)
-                fy_w += int(ny * K/d)
-            """               
-                    
                  
             disp_list.append((int(i.xy[0]+fx_a*(1/self.FPS)+fx_r*(1/self.FPS)\
                             +fx_w*(1/self.FPS)),\
@@ -583,8 +568,6 @@ class PgmeMain(object):
         self.screen.blit(controls,rect)
     
         
-
-
         #messages regarding board state
     def draw_messages(self):
         if self.state == 1:

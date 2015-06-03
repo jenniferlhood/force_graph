@@ -400,16 +400,12 @@ class PgmeMain(object):
         disp_list = []
         d_x = 0
         d_y = 0
-        Fr_x = 0 
-        Fr_y = 0 
-        
-        Fa_x = 0
-        Fa_y = 0
+
         
 
         for i in self.v_list1:
-            dx_j = 0
-            dy_j = 0
+            fx_r = 0
+            fy_r = 0
             
           
             #spring force for adjacent vertices
@@ -417,7 +413,7 @@ class PgmeMain(object):
                 disp_x = K - abs(i.xy[0]-j.xy[0])
                 disp_y = K - abs(i.xy[1]-j.xy[1])
                 
-                #get the direction of the vector
+                #get the direction of the vector (+ or -)
                 if abs(disp_x) > 0 and abs(i.xy[0]-j.xy[0]) > 0:
                     d_x = ((i.xy[0]-j.xy[0])/abs(i.xy[0]-j.xy[0]))*(disp_x/abs(disp_x))
                     
@@ -425,16 +421,12 @@ class PgmeMain(object):
                     d_y = ((i.xy[1]-j.xy[1])/abs(i.xy[1]-j.xy[1]))*(disp_y/abs(disp_y))
                 
                 
-                dx_j = dx_j + (abs(disp_x)*d_x)/spring #apply spring force to each displacement vector
-                dy_j = dy_j + (abs(disp_y)*d_y)/spring
-
+                fx_a = fx_a + (abs(disp_x)*d_x)/spring #apply spring force to each displacement vector
+                fy_a = fy_a + (abs(disp_y)*d_y)/spring
+ 
             
-            Fa_x = dx_j          
-            Fa_y = dy_j
-                        
-            
-            dx_j = 0
-            dy_j = 0 
+            fx_r = 0
+            fy_r = 0 
             
             #proximity to other vertices
             for j in self.v_list1:
@@ -446,21 +438,16 @@ class PgmeMain(object):
                     print dist_x
                     if abs(dist_x) > 0:
                         d_x = dist_x/abs(dist_x)
-                        dx_j = dx_j + d_x*5/abs(dist_x)
+                        fx_r = fx_r + d_x*5/abs(dist_x)
                     if abs(dist_y) > 0:
                         d_y = dist_y/abs(dist_y)
-                        dy_j = dx_j + d_y*5/abs(dist_y)
-
-
-            Fr_x = dx_j 
-            Fr_y = dy_j 
-                
+                        fy_r = fx_r + d_y*5/abs(dist_y)
 
              
-            disp_list.append((int(i.xy[0]+Fa_x*(1/self.FPS)+Fr_x*(1/self.FPS)),\
-                    int(i.xy[1]+Fa_y*(1/self.FPS)+Fr_y*(1/self.FPS))))
+            disp_list.append((int(i.xy[0]+fx_a*(1/self.FPS)+fx_r*(1/self.FPS)),\
+                    int(i.xy[1]+fy_a*(1/self.FPS)+fy_r*(1/self.FPS))))
              
-        #update the vertices
+        #update vertex positions
         for i in range(len(self.v_list1)):
             self.v_list1[i].xy = disp_list[i]
             

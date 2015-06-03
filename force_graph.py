@@ -377,7 +377,7 @@ class PgmeMain(object):
         #length = length + difference between ideal length and actual length *(1/30)
         
         n = max(1,len(self.v_list1))
-        K = (math.sqrt((self.width*self.height)/n))/2
+        K = int((math.sqrt((self.width*self.height)/n))*(2/3))
                
      
        
@@ -411,7 +411,7 @@ class PgmeMain(object):
                     # disp_y = K - abs(i.xy[1]-j.xy[1])
 
                     fx_a += spring*(nx*disp**2/K)*(disp/max(1,abs(disp)))
-                    fy_a += spring*(ny*disp**2/K)*(disp/max(1,abs(disp)))               
+                    fy_a += spring*(ny*disp**2/K)*(disp/max(1,abs(disp)))
                     
                     #fx_a = (vx*disp/K)
                     #fy_a = (vy*disp/K)
@@ -424,7 +424,7 @@ class PgmeMain(object):
             
             #proximity to other vertices
             
-            temp = 100 #the "temperature" of the repulsive force. 
+            temp = 1 #the "temperature" of the repulsive force. 
             
             for j in self.v_list1:
                 if i is not j:
@@ -437,8 +437,8 @@ class PgmeMain(object):
                     
                     if d != 0:
                         (nx, ny) = (vx/d, vy/d)
-                        fx_r += temp*int(nx * (K/2)/d)
-                        fy_r += temp*int(ny * (K/2)/d)
+                        fx_r += temp*int(nx * (K**2)/d)
+                        fy_r += temp*int(ny * (K**2)/d)
                # print "(vx,vy) = ({},{}), disp = {}, fx={}".format(vx, vy,d,fx_r)
             
             
@@ -446,35 +446,38 @@ class PgmeMain(object):
             fx_w = 0
             fy_w = 0
             
-            # top-left direction
-            (vx,vy) = i.xy[0], i.xy[1]
-            d = sqrt(vx**2 + vy**2)
-            
+            # left direction
+            d = vx = i.xy[0]
+                        
             if d != 0:
-                (nx,ny) = (vx/d,vy/d)
-                fx_w +=  temp*int(nx * (K/2)/d)
-                fy_w +=  temp*int(ny * (K/2)/d)
-            
-           
+                nx = 1
+                fx_w +=  temp*int(nx * (K**2)/d)
+                        
+            # right direction
+            d = vx = i.xy[0]-self.width
+                        
+            if d != 0:
+                nx = 1
+                fx_w +=  temp*int(nx * (K**2)/d)
 
-            # top-right direction
-            (vx,vy) = i.xy[0]-self.width, i.xy[1]
-            d = sqrt(vx**2 + vy**2)
-            
-            if d != 0:
-                (nx,ny) = (vx/d,vy/d)
-                fx_w += temp*int(nx * K/d)
-                fy_w += temp*int(ny * K/d)
-                    
-            # bottom-left direction
-            (vx,vy) = i.xy[0], i.xy[1]-self.height
-            d = sqrt(vx**2 + vy**2)
-            
-            if d != 0:
-                (nx,ny) = (vx/d,vy/d)
-                fx_w += temp*int(nx * K/d)
-                fy_w += temp*int(ny * K/d)
 
+            # top 
+            d = vy = i.xy[1]
+                        
+            if d != 0:
+                ny = 1
+                fy_w +=  temp*int(ny * (K**2)/d)
+            
+            # bottom 
+            d = vy = i.xy[1]-self.height
+                        
+            if d != 0:
+                ny = 1
+                fy_w +=  temp*int(ny * (K**2)/d)
+            
+            
+            
+            """
             # bottom-right direction
             (vx,vy) = i.xy[0]-self.width, i.xy[1]-self.height
             d = sqrt(vx**2 + vy**2)
@@ -483,7 +486,7 @@ class PgmeMain(object):
                 (nx,ny) = (vx/d,vy/d)
                 fx_w += int(nx * K/d)
                 fy_w += int(ny * K/d)
-                           
+            """               
                     
                  
             disp_list.append((int(i.xy[0]+fx_a*(1/self.FPS)+fx_r*(1/self.FPS)\

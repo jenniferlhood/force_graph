@@ -404,8 +404,8 @@ class PgmeMain(object):
         
 
         for i in self.v_list1:
-            fx_r = 0
-            fy_r = 0
+            fx_a = 0
+            fy_a = 0
             
           
             #spring force for adjacent vertices

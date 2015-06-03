@@ -49,7 +49,7 @@ class PgmeMain(object):
         self.save_msg = self.msg_font.render("saved",True,CHALK)
         self.load_msg = self.msg_font.render("loaded",True,CHALK)
         
-        self.morph_msg = self.msg_font.render("",True,CHALK)
+        self.spring_msg = self.msg_font.render("Force embed",True,CHALK)
         
 
         #State switch: Used to communicate board state to user 
@@ -317,7 +317,7 @@ class PgmeMain(object):
                     self.selected_index = None
                     self.move_vertex = None
 
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 
                 if self.state == 0:           
                     self.state = 4
@@ -330,7 +330,7 @@ class PgmeMain(object):
                     self.v_list1 = []
                     self.a_list1 = []
 
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 tm = time.localtime(time.time())
                 self.timer = time.time()
                 
@@ -506,9 +506,10 @@ class PgmeMain(object):
         rect = self.save_msg.get_rect()
         rect = rect.move(10,self.height-120)
         self.screen.blit(msg,rect)
-
-        if time.time() - self.timer > 2:
-            self.state = 0
+        
+        if self.state != 4:
+            if time.time() - self.timer > 2:
+                self.state = 0
         
 
     def load_files(self):
@@ -574,7 +575,7 @@ class PgmeMain(object):
         # draw controls
         msg1 = "mouse left : add/move vertex  |  mouse right : connect vertex    "
         msg2 = "|  d : delete   "
-        msg3 =    "|    f : save to file |  l: load from file   |    s : spring "
+        msg3 =    "|    s : save to file |  l: load from file   |    f : force embed "
         
         controls = self.control_font.render(msg1+msg2+msg3,True, CHALK)
         rect = controls.get_rect()
@@ -595,8 +596,8 @@ class PgmeMain(object):
         elif self.state == 3:
             self.state_msg(self.load_msg)
 
-     #   elif self.state == 4:
-           # self.state_msg(self.morph_msg)
+        elif self.state == 4:
+            self.state_msg(self.spring_msg)
 
         
 
